@@ -1,4 +1,4 @@
-import { LatLngExpression } from "leaflet";
+import L , { LatLngExpression } from "leaflet";
 
 export const redlineRailwayRail = [
     [25.16832, 121.44481],
@@ -76,12 +76,16 @@ export const redlineRailwayRail = [
     [25.0564, 121.52052],
     [25.0516, 121.52031],
     [25.05043, 121.52014],
-    [25.04779, 121.51829],
-    [25.04608, 121.51741],
-    [25.04129, 121.51611],
-    [25.03821, 121.51509],
-    [25.03503, 121.51657],
-    [25.03197, 121.51884]
+    [25.04911, 121.51917],
+    [25.04847 , 121.51473],     
+    [25.049444 , 121.510361],    
+    [25.05177 , 121.5094],     
+    // [25.04779, 121.51829],
+    // [25.04608, 121.51741],
+    // [25.04129, 121.51611],
+    // [25.03821, 121.51509],
+    // [25.03503, 121.51657],
+    // [25.03197, 121.51884]
 ] as LatLngExpression[];
 
 // prettier-ignore
@@ -101,5 +105,40 @@ export const redlineRailwayStation = {
     "台鐵_長安"         : { name : "長安"           , latitude : 25.05089      , longtitude : 121.52006836  , title : "長安站   (Taishōgai(大正街)  →   Chang-an)"      },
     "台鐵_台北"         : { name : "台北"           , latitude : 25.04847      , longtitude : 121.51473     , title : "台北站   (Taihoku            →   Taipei)"        },
     "台鐵_北門"         : { name : "北門"           , latitude : 25.049444     , longtitude : 121.510361    , title : "北門站   (Hokumon)"                              },
-    "台鐵_大稻埕"       : { name : "大稻埕"         , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                             },
+    "台鐵_大稻埕"       : { name : "大稻埕"          , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                             },
 }
+
+
+let redlineRailwayStationMarker: {
+    [name: string]: {
+        popup: L.Popup;
+        marker: L.Circle;
+    };
+} = {};
+
+let redlineRailwayRailMark = [ L.polyline(redlineRailwayRail, { color: "blue" }) as any];
+
+let redlineRailwayStationProperty: keyof typeof redlineRailwayStation;
+for (redlineRailwayStationProperty in redlineRailwayStation) {
+    let key = redlineRailwayStationProperty;
+    let station = redlineRailwayStation[key];
+    redlineRailwayStationMarker[key] = {
+        popup: L.popup({ content: station.title }),
+        marker: L.circle([station.latitude, station.longtitude], {
+            radius: 50,
+            color: "blue",
+            fill: true,
+            fillColor: "blue",
+            fillOpacity: 1
+        })
+    };
+    // redlineStationMarker[key].marker.addTo(map);
+    redlineRailwayStationMarker[key].marker.bindPopup(
+        redlineRailwayStationMarker[key].popup
+    );
+    redlineRailwayRailMark.push(redlineRailwayStationMarker[key].marker)
+}
+
+const RailwayLayer = L.layerGroup(redlineRailwayRailMark);
+
+export default RailwayLayer;

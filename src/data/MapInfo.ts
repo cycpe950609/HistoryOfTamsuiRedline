@@ -1,4 +1,6 @@
 import L from "leaflet";
+import MetroLayer from "./MetroInfo";
+import RailwayLayer from "./RailwayInfo";
 
 export const baseMaps = {
     現代底圖: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -33,5 +35,8 @@ export const overlayMaps = {
             attribution:
                 '&copy; <a href="https://gis.sinica.edu.tw/tileserver/wmts">中央研究院臺灣百年歷史地圖 WMTS 服務</a>'
         }
-    )
+    ),
+    台鐵淡水線: RailwayLayer,
+    捷運淡水線: MetroLayer,
+
 };

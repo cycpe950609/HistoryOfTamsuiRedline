@@ -1,4 +1,4 @@
-import { LatLngExpression } from "leaflet";
+import L,{ LatLngExpression } from "leaflet";
 
 // #####################################################################
 // #                            Metro                                  #
@@ -112,3 +112,37 @@ export const redlineMetroStation = {
     "捷運_紅樹林"       : { name : "紅樹林"         , latitude : 25.154042     , longtitude : 121.458871    , title : "紅樹林站(Hongshulin Station) | 新北市淡水區"                             },
     "捷運_淡水"         : { name : "淡水"           , latitude : 25.167817     , longtitude : 121.44556     , title : "淡水站(Tamsui Station) | 新北市淡水區"                                   },
 }
+
+let redlineStationMarker: {
+    [name: string]: {
+        popup: L.Popup;
+        marker: L.Circle;
+    };
+} = {};
+
+let redlineRailMark = [ L.polyline(redlineMetroRail, { color: "red" }) as any];
+
+let redlineMetroStationProperty: keyof typeof redlineMetroStation;
+for (redlineMetroStationProperty in redlineMetroStation) {
+    let key = redlineMetroStationProperty;
+    let station = redlineMetroStation[key];
+    redlineStationMarker[key] = {
+        popup: L.popup({ content: station.title }),
+        marker: L.circle([station.latitude, station.longtitude], {
+            radius: 50,
+            color: "red",
+            fill: true,
+            fillColor: "red",
+            fillOpacity: 1
+        })
+    };
+    // redlineStationMarker[key].marker.addTo(map);
+    redlineStationMarker[key].marker.bindPopup(
+        redlineStationMarker[key].popup
+    );
+    redlineRailMark.push(redlineStationMarker[key].marker)
+}
+
+const MetroLayer = L.layerGroup(redlineRailMark);
+
+export default MetroLayer;
