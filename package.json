@@ -1,0 +1,48 @@
+{
+  "name": "webpresentation",
+  "version": "0.0.1-dev",
+  "description": "WebPresentation for 歷史研究數位人文資源的介紹與實作 (CSIE5025)",
+  "main": "index.js",
+  "repository": "git@github.com:cycpe950609/InfiniteCanvas.git",
+  "author": "Cycpe950609 <cycpe950609@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint ts/ --ext .ts",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "build:watch": "webpack --mode development --watch"
+  },
+  "dependencies": {
+    "@types/uuid": "^8.3.4",
+    "file-loader": "^6.2.0",
+    "html-loader": "^4.2.0",
+    "lodash": "^4.17.21",
+    "remark": "^14.0.2",
+    "remark-html": "^15.0.1",
+    "remark-loader": "^5.0.0",
+    "typescript": "^4.7.4",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.6",
+    "@babel/preset-env": "^7.18.6",
+    "@babel/register": "^7.18.6",
+    "@types/leaflet": "^1.9.0",
+    "@types/lodash": "^4.14.189",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "babel-loader": "^8.2.5",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.3",
+    "eslint": "^8.19.0",
+    "html-webpack-plugin": "^5.5.0",
+    "leaflet": "^1.9.3",
+    "prettier": "^2.7.1",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.3.1",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
+  }
+}
