@@ -1,7 +1,7 @@
 import L , { LatLngExpression } from "leaflet";
 import { getRailStationLayer, RailInfo } from "./utils";
 
-export const redlineRailwayRail = [
+export const railway淡水台北 = [
     [25.16832, 121.44481],
     [25.16344, 121.45128],
     [25.16272, 121.45186],
@@ -79,15 +79,19 @@ export const redlineRailwayRail = [
     [25.05043, 121.52014],
     [25.04911, 121.51917],
     [25.04847 , 121.51473],     
+] as RailInfo;
+
+export const railway台北北門 = [
+    [25.04847 , 121.51473],
+    [25.049444 , 121.510361],    
+] as RailInfo;
+
+export const railway北門大稻埕 = [
     [25.049444 , 121.510361],    
     [25.05177 , 121.5094],     
-    // [25.04779, 121.51829],
-    // [25.04608, 121.51741],
-    // [25.04129, 121.51611],
-    // [25.03821, 121.51509],
-    // [25.03503, 121.51657],
-    // [25.03197, 121.51884]
 ] as RailInfo;
+
+export const redlineRailwayRail = [...railway淡水台北,...railway台北北門,...railway北門大稻埕] as RailInfo;
 
 // prettier-ignore
 export const redlineRailwayStation = {
@@ -107,7 +111,10 @@ export const redlineRailwayStation = {
     "台鐵_台北"         : { name : "台北"           , latitude : 25.04847      , longtitude : 121.51473     , title : "台北站   (Taihoku            →   Taipei)"        },
     "台鐵_北門"         : { name : "北門"           , latitude : 25.049444     , longtitude : 121.510361    , title : "北門站   (Hokumon)"                              },
     "台鐵_大稻埕"       : { name : "大稻埕"         , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                             },
+    "台鐵_台北OLD"       : { name : "台北(第一代)"  , latitude : 25.05177      , longtitude : 121.5094      , title : "台北站   (Taihoku            →   Taipei)"                             },
+
 }
+//TODO ：北門車站在哪？
 
 export const allRailStation = [
     redlineRailwayStation.台鐵_淡水     ,
@@ -127,6 +134,6 @@ export const allRailStation = [
     redlineRailwayStation.台鐵_大稻埕   ,
 ]
 
-const RailwayLayer = getRailStationLayer(redlineRailwayRail,allRailStation)("red");
+const RailwayLayer = getRailStationLayer(redlineRailwayRail,allRailStation)("blue");
 
 export default RailwayLayer;

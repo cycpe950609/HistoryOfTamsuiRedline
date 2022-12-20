@@ -1,7 +1,7 @@
 // Modified from https://github.com/tinuzz/leaflet-messagebox
 // 2022-12-20 : Change to module
 
-const Messagebox = L.Control.extend({
+export const Messagebox = L.Control.extend({
     options: {
         position: 'topright',
         timeout: 3000
