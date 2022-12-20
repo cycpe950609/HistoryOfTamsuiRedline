@@ -1,4 +1,5 @@
 import L , { LatLngExpression } from "leaflet";
+import { getRailStationLayer, RailInfo } from "./utils";
 
 export const redlineRailwayRail = [
     [25.16832, 121.44481],
@@ -86,7 +87,7 @@ export const redlineRailwayRail = [
     // [25.03821, 121.51509],
     // [25.03503, 121.51657],
     // [25.03197, 121.51884]
-] as LatLngExpression[];
+] as RailInfo;
 
 // prettier-ignore
 export const redlineRailwayStation = {
@@ -105,40 +106,27 @@ export const redlineRailwayStation = {
     "台鐵_長安"         : { name : "長安"           , latitude : 25.05089      , longtitude : 121.52006836  , title : "長安站   (Taishōgai(大正街)  →   Chang-an)"      },
     "台鐵_台北"         : { name : "台北"           , latitude : 25.04847      , longtitude : 121.51473     , title : "台北站   (Taihoku            →   Taipei)"        },
     "台鐵_北門"         : { name : "北門"           , latitude : 25.049444     , longtitude : 121.510361    , title : "北門站   (Hokumon)"                              },
-    "台鐵_大稻埕"       : { name : "大稻埕"          , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                             },
+    "台鐵_大稻埕"       : { name : "大稻埕"         , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                             },
 }
 
+export const allRailStation = [
+    redlineRailwayStation.台鐵_淡水     ,
+    redlineRailwayStation.台鐵_竹圍     ,
+    redlineRailwayStation.台鐵_關渡     ,
+    redlineRailwayStation.台鐵_忠義     ,
+    redlineRailwayStation.台鐵_北投     ,
+    redlineRailwayStation.台鐵_王家廟   ,
+    redlineRailwayStation.台鐵_石牌     ,
+    redlineRailwayStation.台鐵_士林     ,
+    redlineRailwayStation.台鐵_劍潭     ,
+    redlineRailwayStation.台鐵_圓山     ,
+    redlineRailwayStation.台鐵_雙連     ,
+    redlineRailwayStation.台鐵_長安     ,
+    redlineRailwayStation.台鐵_台北     ,
+    redlineRailwayStation.台鐵_北門     ,
+    redlineRailwayStation.台鐵_大稻埕   ,
+]
 
-let redlineRailwayStationMarker: {
-    [name: string]: {
-        popup: L.Popup;
-        marker: L.Circle;
-    };
-} = {};
-
-let redlineRailwayRailMark = [ L.polyline(redlineRailwayRail, { color: "blue" }) as any];
-
-let redlineRailwayStationProperty: keyof typeof redlineRailwayStation;
-for (redlineRailwayStationProperty in redlineRailwayStation) {
-    let key = redlineRailwayStationProperty;
-    let station = redlineRailwayStation[key];
-    redlineRailwayStationMarker[key] = {
-        popup: L.popup({ content: station.title }),
-        marker: L.circle([station.latitude, station.longtitude], {
-            radius: 50,
-            color: "blue",
-            fill: true,
-            fillColor: "blue",
-            fillOpacity: 1
-        })
-    };
-    // redlineStationMarker[key].marker.addTo(map);
-    redlineRailwayStationMarker[key].marker.bindPopup(
-        redlineRailwayStationMarker[key].popup
-    );
-    redlineRailwayRailMark.push(redlineRailwayStationMarker[key].marker)
-}
-
-const RailwayLayer = L.layerGroup(redlineRailwayRailMark);
+const RailwayLayer = getRailStationLayer(redlineRailwayRail,allRailStation)("red");
 
 export default RailwayLayer;

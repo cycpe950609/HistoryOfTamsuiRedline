@@ -1,4 +1,5 @@
 import L,{ LatLngExpression } from "leaflet";
+import { getRailStationLayer, RailInfo } from "./utils";
 
 // #####################################################################
 // #                            Metro                                  #
@@ -85,7 +86,7 @@ export const redlineMetroRail = [
     [25.03821, 121.51509],
     [25.03503, 121.51657],
     [25.03197, 121.51884]
-] as LatLngExpression[];
+] as RailInfo;
 
 // prettier-ignore
 export const redlineMetroStation = {
@@ -113,36 +114,31 @@ export const redlineMetroStation = {
     "捷運_淡水"         : { name : "淡水"           , latitude : 25.167817     , longtitude : 121.44556     , title : "淡水站(Tamsui Station) | 新北市淡水區"                                   },
 }
 
-let redlineStationMarker: {
-    [name: string]: {
-        popup: L.Popup;
-        marker: L.Circle;
-    };
-} = {};
+export const allMetroStation = [
+    redlineMetroStation.捷運_中正紀念堂 ,
+    redlineMetroStation.捷運_台大醫院   ,
+    redlineMetroStation.捷運_台北車     ,
+    redlineMetroStation.捷運_中山       ,
+    redlineMetroStation.捷運_雙連       ,
+    redlineMetroStation.捷運_民權西路    ,
+    redlineMetroStation.捷運_圓山       ,
+    redlineMetroStation.捷運_劍潭       ,
+    redlineMetroStation.捷運_士林       ,
+    redlineMetroStation.捷運_芝山       ,
+    redlineMetroStation.捷運_明德       ,
+    redlineMetroStation.捷運_石牌       ,
+    redlineMetroStation.捷運_唭哩岸     ,
+    redlineMetroStation.捷運_奇岩       ,
+    redlineMetroStation.捷運_北投       ,
+    redlineMetroStation.捷運_復興崗     ,
+    redlineMetroStation.捷運_忠義       ,
+    redlineMetroStation.捷運_關渡       ,
+    redlineMetroStation.捷運_竹圍       ,
+    redlineMetroStation.捷運_紅樹林     ,
+    redlineMetroStation.捷運_淡水       ,
+]
 
-let redlineRailMark = [ L.polyline(redlineMetroRail, { color: "red" }) as any];
+const MetroLayer = getRailStationLayer(redlineMetroRail,allMetroStation)("red");
 
-let redlineMetroStationProperty: keyof typeof redlineMetroStation;
-for (redlineMetroStationProperty in redlineMetroStation) {
-    let key = redlineMetroStationProperty;
-    let station = redlineMetroStation[key];
-    redlineStationMarker[key] = {
-        popup: L.popup({ content: station.title }),
-        marker: L.circle([station.latitude, station.longtitude], {
-            radius: 50,
-            color: "red",
-            fill: true,
-            fillColor: "red",
-            fillOpacity: 1
-        })
-    };
-    // redlineStationMarker[key].marker.addTo(map);
-    redlineStationMarker[key].marker.bindPopup(
-        redlineStationMarker[key].popup
-    );
-    redlineRailMark.push(redlineStationMarker[key].marker)
-}
-
-const MetroLayer = L.layerGroup(redlineRailMark);
 
 export default MetroLayer;

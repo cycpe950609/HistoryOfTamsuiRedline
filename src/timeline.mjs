@@ -1,9 +1,12 @@
 // TODO: parameterize timeline colors, overall length, and length between points (css styles)
+// Modified from https://github.com/svitkin/leaflet-timeline-slider
 const TimeLineSlider = L.Control.extend({
 
     options: {
         position: 'bottomright',
         timelineItems: ["Today", "Tomorrow", "The Next Day"],
+
+        initValue : 1,
 
         changeMap: function({label, value, map}) {
             console.log("You are not using the value or label from the timeline to change the map.");
@@ -68,7 +71,7 @@ const TimeLineSlider = L.Control.extend({
         this.slider = L.DomUtil.create('div', 'range_'+this.uuid, this.container);
         this.rangeLabels = L.DomUtil.create('ul', 'range-labels_'+this.uuid, this.container);
 
-        this.slider.innerHTML = `<input id="rangeinputslide_${this.uuid}" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="1"></input>`
+        this.slider.innerHTML = `<input id="rangeinputslide_${this.uuid}" type="range" min="1" max="${this.options.timelineItems.length}" steps="1" value="${this.options.initValue}"></input>`
 
         this.rangeLabels.innerHTML = this.options.timelineItems.map((item) => { return "<li>" + item + "</li>" }).join('');
 
