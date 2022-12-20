@@ -1,11 +1,10 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import InfiniteCanvas, { DebugCoordsLayer } from "./canvas/InfiniteCanvas";
 import "./main.css";
 import { defaultPosition } from "./data/RedLineInfo";
 import MetroLayer, { redlineMetroRail, redlineMetroStation } from "./data/MetroInfo";
-import RailwayLayer, { redlineRailwayStation } from "./data/RailwayInfo";
 import { baseMaps, overlayMaps } from "./data/MapInfo";
+import * as  TimeLineSlider  from "./timeline.mjs";
 
 
 
@@ -38,6 +37,22 @@ document.addEventListener("DOMContentLoaded", () => {
     baseMaps.現代底圖.addTo(map); //Set default
 
     MetroLayer.addTo(map);
+
+    let timelist = ["Hide"]
+    for(let i = 0;i < 5;i++ )
+        timelist.push((1900+i).toString());
+
+    TimeLineSlider.timelineSlider({
+        timelineItems : timelist,
+        position: 'bottomleft',
+        labelWidth: "40px",
+    }).addTo(map)
+    TimeLineSlider.timelineSlider({
+        timelineItems : timelist,
+        position: 'bottomleft',
+        labelWidth: "40px",
+        activeColor: "#FF0000"
+    }).addTo(map)
     // RailwayLayer.addTo(map);
 
     // map.addLayer(new InfiniteCanvas())
