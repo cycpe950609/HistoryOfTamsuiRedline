@@ -19,7 +19,7 @@ const MapTimeline = (props : MapTimelinePropsType) => {
         position: 'bottomleft',
         labelWidth: "40px",
         activeColor: props.activeColor !== undefined ? props.activeColor : "#37adbf",
-        changeMap : (typeof props.changeMap === "function") ? props.changeMap : (param : {label: string, value : number, map: L.Map}) {
+        changeMap : (typeof props.changeMap === "function") ? props.changeMap : (param : {label: string, value : number, map: L.Map}) => {
             console.log("Change Map at ", param.label , param.value , param.map)
         },
         initValue : props.initValue !== undefined ? props.initValue : 1,

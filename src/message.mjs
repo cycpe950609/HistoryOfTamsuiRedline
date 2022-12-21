@@ -1,5 +1,6 @@
 // Modified from https://github.com/tinuzz/leaflet-messagebox
 // 2022-12-20 : Change to module
+import L from "leaflet"
 
 export const Messagebox = L.Control.extend({
     options: {
@@ -27,17 +28,14 @@ export const Messagebox = L.Control.extend({
             this.timeoutID = setTimeout(function () {
                 elem.style.display = 'none';
             }, timeout);
-    }
-});
+    },
 
-L.Map.mergeOptions({
-    messagebox: false
-});
+    close: function(){
+        this._container.style.display = 'none';
+    },
 
-L.Map.addInitHook(function () {
-    if (this.options.messagebox) {
-        this.messagebox = new L.Control.Messagebox();
-        this.addControl(this.messagebox);
+    getContainer: function(){
+        return this._container;
     }
 });
 

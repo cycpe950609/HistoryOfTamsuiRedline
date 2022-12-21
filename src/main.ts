@@ -7,14 +7,20 @@ import MapTimeline from "./maptimeline";
 import * as Message from "./message.mjs";
 import { getLayerWithColor } from "./data/utils";
 // import "./message.css";
+import village2022Data from "./data/village2022.geojson";
+import * as d3 from "d3"
+import "d3-geo"
+import VillageLayer from "./villageLayer";
+import { Population1997 } from "./data/Population";
 
-type Messagebox = {
+export type Messagebox = {
     options: {
         position: L.ControlPosition,
         timeout: number
     },
     onAdd: (map : L.Map) => void ,
-    show: (message:string, timeout?:number) => void
+    show: (message:string, timeout?:number) => void,
+    close: ()=> void
 } & L.Control
 
 let overlay1activeColor = "#37adbf";
@@ -91,6 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay2eventBox = Message.messagebox({timeout: 0 , position : "bottomright"}).addTo(map);
     overlay1eventBox.show("Layer 1 : " + (overlay1 !== "Hide" ? redlineData[overlay1].Event : "Nothing showed"))
     overlay2eventBox.show("Layer 2 : " + (overlay2 !== "Hide" ? redlineData[overlay2].Event : "Nothing showed"))
+
+    L.geoJSON(village2022Data).addTo(map);
+    
+    new VillageLayer(village2022Data,Population1997).addTo(map);
 
     // RailwayLayer.addTo(map);
 

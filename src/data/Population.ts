@@ -1,3 +1,7 @@
+export type PopulationDataType = {
+    [name:string]:{ latitude : number , longtitude : number , population : {[name:string]:{female: number , male: number}  } }
+}
+
 // prettier-ignore
 export const Population1915 = {
     淡水街          : { latitude : 121 , longtitude : 25 , population : { 內地 : { female : 458  , male : 492    } , 本島  : { female : 2751     , male : 2444   } , 外國  : { female : 62  , male : 142     } } },

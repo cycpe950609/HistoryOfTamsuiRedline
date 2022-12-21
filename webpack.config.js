@@ -76,6 +76,10 @@ const module = {
             {
                 test: /\.css$/i,
                 use: ["style-loader", "css-loader"]
+            },
+            {
+                test: /\.geojson$/,
+                loader: 'json-loader'
             }
         ]
     },
