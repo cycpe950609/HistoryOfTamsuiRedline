@@ -1,6 +1,11 @@
 import L from "leaflet";
-import MetroLayer from "./MetroInfo";
-import RailwayLayer from "./RailwayInfo";
+import MetroLayer from "./data/MetroInfo";
+import RailwayLayer from "./data/RailwayInfo";
+import StationLayer from "./stationLayer";
+import VillageLayer from "./villageLayer";
+import village2022Data from "./data/village2022.geojson";
+import { Population1915, Population1997 } from "./data/Population";
+
 
 export const baseMaps = {
     現代底圖: L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -38,5 +43,9 @@ export const overlayMaps = {
     ),
     台鐵淡水線: RailwayLayer,
     捷運淡水線: MetroLayer,
+    鐵路變化: new StationLayer(),
+
+    堡庄1915人口: new VillageLayer(village2022Data,Population1915),
+    村里1988人口: new VillageLayer(village2022Data,Population1997),
 
 };

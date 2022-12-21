@@ -333,6 +333,7 @@ class VillageLayer extends L.Layer {
     onRemove(map: L.Map): this {
         this.populationBox.close();
         this.populationBox.remove();
+        this.geojsonLayer.remove();
         return this;
     }
 
