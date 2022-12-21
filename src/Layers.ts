@@ -46,6 +46,6 @@ export const overlayMaps = {
     鐵路變化: new StationLayer(),
 
     堡庄1915人口: new VillageLayer(village2022Data,Population1915),
-    村里1988人口: new VillageLayer(village2022Data,Population1997),
+    村里1997人口: new VillageLayer(village2022Data,Population1997),
 
 };

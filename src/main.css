@@ -11,3 +11,10 @@ html , body
     width: 100vw;
     height: 100vh;
 }
+
+.leaflet-tooltip.village-labels {
+    background-color: transparent;
+    border: transparent;
+    box-shadow: none;
+    font-size: larger;
+}

@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // attributionControl: false,
     });
 
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
+    L.control.layers(baseMaps, overlayMaps,{collapsed: false,sortLayers: false}).addTo(map);
     baseMaps.現代底圖.addTo(map); //Set default
     
     // new StationLayer().addTo(map);

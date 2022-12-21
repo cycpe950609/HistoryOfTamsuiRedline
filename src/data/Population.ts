@@ -32,7 +32,7 @@ export const Population1915 = {
 
 // prettier-ignore
 export const Population1997 = {
-    鄧公里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 5881 , male : 5912 } } },
+    鄧公里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 5881 , male : 5912 } } },//TODO : 範圍為現今鄧公里、幸福里、學府里
     八勢里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 602  , male : 604  } } },
     竹圍里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 2907 , male : 2862 } } },
     一德里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 3310 , male : 3368 } } },
@@ -52,4 +52,17 @@ export const Population1997 = {
     雙連里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 5132 , male : 5292 } } },
     建泰里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 1972 , male : 2007 } } },
     黎明里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 1383 , male : 1595 } } },
+    // 12/22 added
+    石牌里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 2970 , male : 2913 } } },
+    裕民里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 3579 , male : 3531 } } },
+    榮光里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 3828 , male : 3736 } } },
+    福德里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 2365 , male : 2325 } } },
+    仁勇里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 2765 , male : 2770 } } },
+    保安里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 3196 , male : 3406 } } },
+    蓬萊里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 2731 , male : 2671 } } },
+    集英里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 3284 , male : 3088 } } },
+    光能里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 3042 , male : 3090 } } },
+    圓山里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 2588 , male : 2514 } } },
+    草東里          : { latitude : 121 , longtitude : 25 , population : { 本島  : { female : 568  , male : 599  } } },
+
 }

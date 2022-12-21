@@ -84,15 +84,15 @@ export const redlineMetroRail = [
     [25.04608, 121.51741],
     [25.04129, 121.51611],
     [25.03821, 121.51509],
-    [25.03503, 121.51657],
-    [25.03197, 121.51884]
+    // [25.03503, 121.51657],
+    // [25.03197, 121.51884]
 ] as RailInfo;
 
 // prettier-ignore
 export const redlineMetroStation = {
     // Index            : { name : Name             , latitude : Latitude      , longtitude : Longitude     , title : Title of popup                                                            },
-    "捷運_中正紀念堂"   : { name : "中正紀念堂"     , latitude : 25.032729     , longtitude : 121.51827     , title : "中正紀念堂站(Chiang Kai-Shek Memorial Hall Station) | 台北市中正區"      },
-    "捷運_台大醫院"     : { name : "台大醫院"       , latitude : 25.041256     , longtitude : 121.51604     , title : "台大醫院站(NTU Hospital Station) | 台北市中正區"                         },
+    // "捷運_中正紀念堂"   : { name : "中正紀念堂"     , latitude : 25.032729     , longtitude : 121.51827     , title : "中正紀念堂站(Chiang Kai-Shek Memorial Hall Station) | 台北市中正區"      },
+    // "捷運_台大醫院"     : { name : "台大醫院"       , latitude : 25.041256     , longtitude : 121.51604     , title : "台大醫院站(NTU Hospital Station) | 台北市中正區"                         },
     "捷運_台北車"       : { name : "台北車"         , latitude : 25.0464886    , longtitude : 121.5172638   , title : "台北車站(Taipei Main Station) | 台北市中正區"                            },
     "捷運_中山"         : { name : "中山"           , latitude : 25.0529451    , longtitude : 121.5203157   , title : "中山站(Zhongshan Station) | 台北市中山區"                                },
     "捷運_雙連"         : { name : "雙連"           , latitude : 25.0579015    , longtitude : 121.5206032   , title : "雙連站(Shuanglian Station) | 台北市大同區"                               },
@@ -115,8 +115,8 @@ export const redlineMetroStation = {
 }
 
 export const allMetroStation = [
-    redlineMetroStation.捷運_中正紀念堂 ,
-    redlineMetroStation.捷運_台大醫院   ,
+    // redlineMetroStation.捷運_中正紀念堂 ,
+    // redlineMetroStation.捷運_台大醫院   ,
     redlineMetroStation.捷運_台北車     ,
     redlineMetroStation.捷運_中山       ,
     redlineMetroStation.捷運_雙連       ,
