@@ -70,10 +70,11 @@ class PieViewer {
     }
 }
 
-class VillageLayer extends L.Layer {
-    constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlighColor: string = "orange",showPop: boolean = true)
+export class VillageLayer extends L.Layer {
+    constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlighColor: string = "orange",showPop: boolean = true,showOnMap: boolean = false)
     {
         super()
+        // console.log("Show pop : ",showPop , " , Show on Map : " , showOnMap )
         this.geojsonData = geojsonData;
         this.populationData = populationData;
         this.color = color;
@@ -83,6 +84,10 @@ class VillageLayer extends L.Layer {
             "weight" : 5,
             "opacity": 0.65
         }
+        this.populationBox = Message.messagebox({timeout: 0 });
+        this.viewer = new PieViewer(200,250)
+        this.showPop = showPop;
+        this.showOnMap = showOnMap;
         this.geojsonLayer = L.geoJSON(this.geojsonData,{
             style : style,
             onEachFeature : this.onEachFeature,
@@ -94,10 +99,6 @@ class VillageLayer extends L.Layer {
                 return false;
             }
         })
-        this.populationBox = Message.messagebox({timeout: 0 });
-        this.viewer = new PieViewer(200,250)
-
-        this.showPop = showPop;
     }
 
     private geojsonData : GeoJSON.GeoJsonObject;
@@ -107,6 +108,7 @@ class VillageLayer extends L.Layer {
     private geojsonLayer : L.GeoJSON;
     private populationBox : Messagebox;
     private showPop: boolean;
+    private showOnMap: boolean;
 
     private viewer : PieViewer;
 
@@ -173,6 +175,7 @@ class VillageLayer extends L.Layer {
         return {"areaName" : "Error" , "population" : { "areaNotFound":{female:0,male:0} } };
     }
 
+    private pieCNT : {[name:string]:{Tooltip:L.Layer,CNT:HTMLDivElement,Viewer:PieViewer}} = {}
 
     private onEachFeature = (feature: GeoJSON.Feature, layer : L.Layer) =>
     {
@@ -182,7 +185,36 @@ class VillageLayer extends L.Layer {
         })
         if(feature.properties)
         {
-            layer.bindTooltip(feature.properties["VILLNAME"],{className: "village-labels",permanent:true,direction:"center"});
+            // console.log("onEachFeature => Show pop : ",this.showPop , " , Show on Map : " , this.showOnMap )
+            // let tooltip = layer.bindTooltip(feature.properties["VILLNAME"],{className: "village-labels",permanent:true,direction:"center"});
+            if(this.showOnMap)
+            {
+                let container = L.DomUtil.create('div')
+
+                let villnm = feature.properties["VILLNAME"];
+                let popData = this.populationData[villnm].population;
+                let totalPop = 0;
+                for(let label in popData)
+                {
+                    totalPop += popData[label].female
+                    totalPop += popData[label].male
+                }
+                console.log("TotalPop : ",Math.log10(totalPop)*10)
+                let new_viewer = new PieViewer((Math.log2(totalPop)-5)*15,totalPop + 50);
+                let tooltip = layer.bindTooltip(container,{className: "village-labels",permanent:true,direction:"center"});
+                // console.log("Tooltip : ",tooltip.getTooltip())
+                new_viewer.addTo(container as HTMLDivElement)
+                new_viewer.show(this.getViewerDataOfVill(feature))
+                this.pieCNT[feature.properties["VILLNAME"]] = {
+                    Tooltip: tooltip,
+                    CNT : container,
+                    Viewer : new_viewer
+                }
+            }
+            else {
+                layer.bindTooltip(feature.properties["VILLNAME"],{className: "village-labels",permanent:true,direction:"center"});
+            }
+            
         }
     }
 
@@ -200,9 +232,98 @@ class VillageLayer extends L.Layer {
         if(this.showPop)
             this.populationBox.remove();
         this.geojsonLayer.remove();
+        if(this.showOnMap) {
+            for(let villname in this.pieCNT)
+            {
+                this.pieCNT[villname].Tooltip.remove()
+            }
+        }
         return this;
     }
 
 }
 
-export default VillageLayer;
+export class VillageLayersSubGroup extends L.Layer {
+    private layerControl : L.Control;
+    private layers;
+    constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlightColor: string = "orange",showPop: boolean = true,showOnMap:boolean = false)
+    {
+        super()
+        this.layers = {
+            總人口 : new VillageLayer(geojsonData,this.getFemaleMalePopData(populationData),color,highlightColor,showPop,showOnMap),
+            // 男女比 : new VillageLayer(geojsonData,this.getFemaleMalePopData(populationData),color,this.highlightColor,true),
+            國籍比 : new VillageLayer(geojsonData,populationData,color,highlightColor,showPop,showOnMap),
+        } as {[name:string]:VillageLayer};
+        this.layerControl = L.control.layers(this.layers,undefined,{collapsed: false,sortLayers: false,position:"bottomright"})
+    }
+
+    private getFemaleMalePopData = (populationData:PopulationDataType) => {
+        let rtv : PopulationDataType = {}
+        for(let villname in populationData)
+        {
+            let popData = populationData[villname].population;
+            let totalFemale = 0;
+            let totalMale = 0;
+            for(let label in popData)
+            {
+                totalFemale += popData[label].female
+                totalMale += popData[label].male
+            }
+            rtv[villname] = {
+                latitude: populationData[villname].latitude,
+                longtitude:  populationData[villname].longtitude,
+                population: {
+                    總人口:{
+                        female: totalFemale,
+                        male: totalMale
+                    }
+                } 
+            }
+        }
+        return rtv;
+    }
+
+    onAdd(map: L.Map): this {
+        this.layerControl.addTo(map);
+        this.layers.國籍比.addTo(map);
+        return this;
+    }
+
+    onRemove(map: L.Map): this {
+        this.layerControl.remove()
+        for(let layer in this.layers)
+            this.layers[layer].remove()
+        return this;
+    }
+}
+
+
+export class VillageLayersGroup extends L.Layer {
+    private layerControl : L.Control;
+    private layers;
+    constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlightColor: string = "orange")
+    {
+        super()
+        this.layers = {
+            顯示在地圖上 : new VillageLayersSubGroup(geojsonData,populationData,color,highlightColor,false,true),
+            // 男女比 : new VillageLayer(geojsonData,this.getFemaleMalePopData(populationData),color,this.highlightColor,true),
+            顯示在資訊欄 : new VillageLayersSubGroup(geojsonData,populationData,color,highlightColor,true,false),
+        } as {[name:string]:VillageLayersSubGroup};
+        this.layerControl = L.control.layers(this.layers,undefined,{collapsed: false,sortLayers: false,position:"bottomright"})
+    }
+
+    onAdd(map: L.Map): this {
+        this.layerControl.addTo(map);
+        this.layers.顯示在地圖上.addTo(map);
+        return this;
+    }
+
+    onRemove(map: L.Map): this {
+        this.layerControl.remove()
+        for(let layer in this.layers)
+            this.layers[layer].remove()
+        return this;
+    }
+}
+
+export default VillageLayersGroup;

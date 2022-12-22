@@ -2,7 +2,7 @@ import L from "leaflet";
 import MetroLayer from "./data/MetroInfo";
 import RailwayLayer from "./data/RailwayInfo";
 import StationLayer from "./stationLayer";
-import VillageLayer from "./villageLayer";
+import VillageLayersGroup , { VillageLayer }  from "./villageLayer";
 import village1915Data from "./data/village1915.geojson";
 import village2022Data from "./data/village2022.geojson";
 import { Population1915, Population1997 } from "./data/Population";
@@ -53,7 +53,10 @@ export const overlayMaps = {
     捷運淡水線: MetroLayer,
     鐵路變化: new StationLayer(),
 
-    堡庄1915人口: new VillageLayer(village1915Data,Population1915),
-    村里1997人口: new VillageLayer(village2022Data,Population1997),
+    // 堡庄1915人口: new VillageLayer(village1915Data,Population1915),
+    // 村里1997人口: new VillageLayer(village2022Data,Population1997),
+
+    堡庄1915人口: new VillageLayersGroup(village1915Data,Population1915),
+    村里1997人口: new VillageLayersGroup(village2022Data,Population1997),
 
 };
