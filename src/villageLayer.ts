@@ -71,7 +71,7 @@ class PieViewer {
 }
 
 class VillageLayer extends L.Layer {
-    constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlighColor: string = "orange")
+    constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlighColor: string = "orange",showPop: boolean = true)
     {
         super()
         this.geojsonData = geojsonData;
@@ -96,6 +96,8 @@ class VillageLayer extends L.Layer {
         })
         this.populationBox = Message.messagebox({timeout: 0 });
         this.viewer = new PieViewer(200,250)
+
+        this.showPop = showPop;
     }
 
     private geojsonData : GeoJSON.GeoJsonObject;
@@ -104,6 +106,7 @@ class VillageLayer extends L.Layer {
     private highlightColor:string;
     private geojsonLayer : L.GeoJSON;
     private populationBox : Messagebox;
+    private showPop: boolean;
 
     private viewer : PieViewer;
 
@@ -116,9 +119,11 @@ class VillageLayer extends L.Layer {
         });
         layer.bringToFront()
 
-        this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
-        this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement)
-        this.viewer.show(this.getViewerDataOfVill(e.target.feature))
+        if(this.showPop) {
+            this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
+            this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement)
+            this.viewer.show(this.getViewerDataOfVill(e.target.feature))
+        }
     }
 
     private resetHighlightFeature = (e:L.LeafletEvent) => {
@@ -135,11 +140,11 @@ class VillageLayer extends L.Layer {
                     let rtv = ""
                     for(let key in this.populationData[name].population)
                     {
-                        rtv += `${key} : 女 ${this.populationData[name].population[key].female} 人 男 ${this.populationData[name].population[key].male} 人 ,`
+                        rtv += `${key} : 女 ${this.populationData[name].population[key].female} 人 男 ${this.populationData[name].population[key].male} 人 ,</br>`
                     }
                     return rtv;
                 }
-                infoText = `${villname} : ${getListOfVilla(villname)}`;
+                infoText = `${villname} :</br> ${getListOfVilla(villname)}`;
             }
         }
         return infoText;
@@ -184,13 +189,16 @@ class VillageLayer extends L.Layer {
     onAdd(map: L.Map): this {
         
         this.geojsonLayer.addTo(map);
-        this.populationBox.addTo(map);
+        if(this.showPop)
+            this.populationBox.addTo(map);
         return this;
     }
 
     onRemove(map: L.Map): this {
-        this.populationBox.close();
-        this.populationBox.remove();
+        if(this.showPop)
+            this.populationBox.close();
+        if(this.showPop)
+            this.populationBox.remove();
         this.geojsonLayer.remove();
         return this;
     }
