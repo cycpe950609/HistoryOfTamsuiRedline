@@ -41,13 +41,29 @@ class PieViewer {
         
     }
 
+    private getInfoTextOfVill = (data : PieViewerData) => {
+        let infoText = "";
+        let villname = data.areaName;
+
+        const getListOfVilla = ()=>{
+            let rtv = ""
+            for(let key in data.population)
+            {
+                rtv += `${key} : 女 ${data.population[key].female} 人 男 ${data.population[key].male} 人 ,\n`
+            }
+            return rtv;
+        }
+        infoText = `${villname} :\n ${getListOfVilla()}`;
+
+        return infoText;
+    }
     
 
     show = (data:PieViewerData) => {
         this.data = data;
         const arc = d3
         .arc()
-        .innerRadius(0)
+        .innerRadius(20)
         .outerRadius(this.radius)
 
         let pieData : PieDataType[] = []
@@ -56,6 +72,8 @@ class PieViewer {
             pieData.push({name:`${it}_female`,value:data.population[it].female})
             pieData.push({name:`${it}_male`,value:data.population[it].male})
         }
+
+        this.svg.append("svg:title").text(this.getInfoTextOfVill(data) + "\n");
 
 
         const pie = d3.pie<PieDataType>().value(d => d.value)
@@ -67,6 +85,8 @@ class PieViewer {
         .append('path')
         .attr('d', arc)
         .attr('fill', (d: any) => (d.data.name.split('_')[1] === "female") ? "pink":"lightblue" )
+
+        this.svg.append("text").text(data.areaName).style("text-anchor", "middle")
     }
 }
 
@@ -123,6 +143,7 @@ export class VillageLayer extends L.Layer {
 
         if(this.showPop) {
             this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
+            // this.populationBox.show("")
             this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement)
             this.viewer.show(this.getViewerDataOfVill(e.target.feature))
         }
