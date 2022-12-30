@@ -3,6 +3,7 @@ import { PopulationDataType } from "./data/Population";
 import { Messagebox } from "./main";
 import * as Message from "./message.mjs";
 import * as d3 from "d3"
+import { uniqueId } from "lodash";
 
 type PieViewerData = {
     "areaName" : string,
@@ -108,7 +109,7 @@ class MarkViewer {
                 color_view.style.border = "2px solid black";
                 div.appendChild(color_view);
                 let lbl = document.createElement("label");
-                lbl.innerText = `${citizen} 且 ${gender}`;
+                lbl.innerText = `${citizen} 與 ${gender} ，共 ${data.population[citizen][gender]} 人`;
                 div.appendChild(lbl);
                 cnt.appendChild(div);
             }
@@ -140,6 +141,25 @@ export class VillageLayer extends L.Layer {
         this.showPop = showPop;
         this.showOnMap = showOnMap;
         this.viewerMode = "total"
+
+        let min = 99999999999999;
+        let max = 0;
+        for(let location in populationData) {
+            let totalPop = 0;
+            for(let citizen in populationData[location].population){
+                for(let gender in populationData[location].population[citizen]){
+                    totalPop += populationData[location].population[citizen][gender];
+                }
+            }
+            min = totalPop < min ? totalPop : min;
+            max = totalPop > max ? totalPop : max;
+        }
+        this.minPopulation = min;
+        this.MAXpopulation = max;
+        // console.log(`min : ${this.minPopulation} , max : ${this.MAXpopulation}`)
+        this.uuid = uniqueId();
+
+        // Note : the following should at the end of constructor to prevent onEachFeature get undefined things
         this.geojsonLayer = L.geoJSON(this.geojsonData,{
             style : style,
             onEachFeature : this.onEachFeature,
@@ -152,6 +172,11 @@ export class VillageLayer extends L.Layer {
             }
         })
     }
+
+    private uuid : string;// prevent same name in mode selector
+
+    private minPopulation : number;
+    private MAXpopulation : number;
 
     private geojsonData : GeoJSON.GeoJsonObject;
     private populationData:PopulationDataType;
@@ -177,7 +202,7 @@ export class VillageLayer extends L.Layer {
             let totalPop = 0;
             for(let gender in data.population[citizen])
                 totalPop += data.population[citizen][gender]
-            mergeData.population[citizen] = {"total" : totalPop}
+            mergeData.population[citizen] = {"總人數" : totalPop}
         }
 
         return mergeData;
@@ -195,14 +220,14 @@ export class VillageLayer extends L.Layer {
             let selector = document.createElement("div");
             selector.classList.add("selector");
             let lbl = document.createElement("label")
-            lbl.setAttribute("for",value);
+            lbl.setAttribute("for",`${value}-${this.uuid}`);
             lbl.innerText = innerText;
             selector.appendChild(lbl);
 
             let input = document.createElement("input");
             input.setAttribute("type","radio");
-            input.setAttribute("name","showType");
-            input.setAttribute("id",value);
+            input.setAttribute("name",`showType-${this.uuid}`);
+            input.setAttribute("id",`${value}-${this.uuid}`);
             input.setAttribute("value",value);
             input.checked = checked;
             input.onchange = () => changeFunc(value);
@@ -228,28 +253,20 @@ export class VillageLayer extends L.Layer {
         return cnt;
     }
 
-    private highlightFeature = (e:L.LeafletEvent) => {
-        let layer = e.target;
-        layer.setStyle({
-            weight: 5,
-            color: this.highlightColor,
-            fillOpacity : 0.7
-        });
-        layer.bringToFront()
+    private updateMessageBox = (e:L.LeafletEvent) => {
 
-        
 
         if(this.showOnMap || this.showPop) {
             this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
             // this.populationBox.show("")
             
+            let data = this.getViewerDataOfVill(e.target.feature)
+            let viewData = this.viewerMode === "total" ? this.getTotalViewerDataOfVill(data) : data;
 
             const onChange = (value:string) => {
+                
+                console.log(`Change mode : ${value}`)
                 this.viewerMode = value;
-                if(this.showPop){
-                    let data = this.getViewerDataOfVill(e.target.feature)
-                    this.viewer.show(this.viewerMode === "total" ? this.getTotalViewerDataOfVill(data) : data)
-                }
                 if(this.showOnMap)
                 {
                     this.geojsonLayer.remove()
@@ -272,16 +289,33 @@ export class VillageLayer extends L.Layer {
                     })
                     this.geojsonLayer.addTo(this._map);
                 }
+                this.updateMessageBox(e);
             }
             if(this.showPop){
                 this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
-                onChange(this.viewerMode);
+                this.viewer.show(viewData)
             }
             (this.populationBox.getContainer() as HTMLDivElement).appendChild(this.getShowTypeSelector(onChange,this.viewerMode)) 
-
             this.colorviewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
-            this.colorviewer.show(this.getViewerDataOfVill(e.target.feature))
+            this.colorviewer.show(viewData);
         }
+    }
+
+    private lastFeature = {};
+    private highlightFeature = (e:L.LeafletEvent) => {
+        if(e === this.lastFeature)
+            return;
+        this.lastFeature = e;
+        // console.log("Highlight")
+        let layer = e.target;
+        layer.setStyle({
+            weight: 5,
+            color: this.highlightColor,
+            fillOpacity : 0.7
+        });
+        layer.bringToFront()
+
+        this.updateMessageBox(e);
 
     }
 
@@ -360,7 +394,10 @@ export class VillageLayer extends L.Layer {
                         totalPop += popData[label][gender]
                 }
                 // console.log("TotalPop : ",Math.log10(totalPop)*10)
-                let new_viewer = new PieViewer((Math.log2(totalPop)-5)*15,totalPop + 50);
+                let ratio = (totalPop - this.minPopulation) / (this.MAXpopulation - this.minPopulation);
+                let szPie = ratio*100 + 50;
+                // console.log(`ratio : ${ratio} , szPie : ${szPie}`)
+                let new_viewer = new PieViewer(szPie,szPie + 50);
                 let tooltip = layer.bindTooltip(container,{className: "village-labels",permanent:true,direction:"center"});
                 // console.log("Tooltip : ",tooltip.getTooltip())
                 new_viewer.addTo(container as HTMLDivElement)
