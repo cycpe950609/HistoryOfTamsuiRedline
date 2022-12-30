@@ -7,6 +7,7 @@ export type StationInfo =  {
     latitude: number;
     longtitude: number;
     title: string;
+    info: string;
 }
 
 export type RailInfo = LatLngTuple[];
@@ -28,7 +29,7 @@ export const getRailStationLayer = (rail : RailInfo, stations : StationInfo[]) =
     stations.map((station:StationInfo)=>{
         let key = station.name;
         redlineStationMarker[key] = {
-            popup: L.popup({ content: station.title }),
+            popup: L.popup({ content: station.title + station.info }),
             marker: L.circle([station.latitude+offset, station.longtitude+offset], {
                 radius: 50,
                 color: color,
@@ -41,6 +42,9 @@ export const getRailStationLayer = (rail : RailInfo, stations : StationInfo[]) =
         redlineStationMarker[key].marker.bindPopup(
             redlineStationMarker[key].popup
         );
+        redlineStationMarker[key].marker.on('mouseover',function(ev) {
+            ev.target.openPopup();
+        });
         redlineRailLayerObject.push(redlineStationMarker[key].marker)
     })
 

@@ -5,9 +5,6 @@ import { Messagebox } from "./main";
 import MapTimeline from "./maptimeline";
 import * as Message from "./message.mjs";
 
-
-
-
 class StationLayer extends L.Layer {
     constructor() { 
         super() 
@@ -15,6 +12,7 @@ class StationLayer extends L.Layer {
         this.overlay2eventBox = Message.messagebox({timeout: 0 , position : "bottomright"})
         this.timeline1 = MapTimeline({changeMap : this.overlay1changeMap , initValue: 2, activeColor: this.overlay1activeColor });
         this.timeline2 = MapTimeline({changeMap : this.overlay2changeMap , activeColor: this.overlay2activeColor });
+    
     }
 
     private overlay1activeColor = "#37adbf";

@@ -1,4 +1,5 @@
 import L , { LatLngExpression } from "leaflet";
+import { stationInfoText } from "./stationInfo";
 import { getRailStationLayer, RailInfo } from "./utils";
 
 export const railway淡水台北 = [
@@ -96,22 +97,22 @@ export const redlineRailwayRail = [...railway淡水台北,...railway台北北門
 // prettier-ignore
 export const redlineRailwayStation = {
     // Index            : { name : Name             , latitude : Latitude      , longtitude : Longitude     , title : Title of popup                                    },
-    "台鐵_淡水"         : { name : "淡水"           , latitude : 25.168053     , longtitude : 121.445194    , title : "淡水站   (Tansui             →   Tanshui)"       },
-    "台鐵_竹圍"         : { name : "竹圍"           , latitude : 25.137        , longtitude : 121.459503    , title : "竹圍站   (Chikui)"                               },
-    "台鐵_關渡"         : { name : "關渡"           , latitude : 25.125833     , longtitude : 121.467222    , title : "關渡站   (Kantō(江頭)        →   Kuantu)"        },
-    "台鐵_忠義"         : { name : "忠義"           , latitude : 25.131111     , longtitude : 121.473333    , title : "忠義站   (Chungyi)"                              },
-    "台鐵_北投"         : { name : "北投"           , latitude : 25.131944     , longtitude : 121.498611    , title : "北投站   (Hokuto             →   Peitou)"        },
-    "台鐵_王家廟"       : { name : "王家廟"         , latitude : 25.1219322    , longtitude : 121.5021768   , title : "王家廟站 (Wangchia Miao)"                        },
-    "台鐵_石牌"         : { name : "石牌"           , latitude : 25.114519     , longtitude : 121.515644    , title : "石牌站   (Kirigan(唭里岸)    →   Shihpai)"       },
-    "台鐵_士林"         : { name : "士林"           , latitude : 25.093453     , longtitude : 121.526211    , title : "士林站   (Shirin             →   Shihlin)"       },
-    "台鐵_劍潭"         : { name : "劍潭"           , latitude : 25.084389     , longtitude : 121.525       , title : "劍潭站   (Miyanoshita(宮ノ下)→   Chientan)"      },
-    "台鐵_圓山"         : { name : "圓山"           , latitude : 25.07146      , longtitude : 121.520172    , title : "圓山站   (Maruyama           →   Yuanshan)"      },
-    "台鐵_雙連"         : { name : "雙連"           , latitude : 25.05931      , longtitude : 121.52073     , title : "雙連站   (Soren              →   Shuanglien)"    },
-    "台鐵_長安"         : { name : "長安"           , latitude : 25.05089      , longtitude : 121.52006836  , title : "長安站   (Taishōgai(大正街)  →   Chang-an)"      },
-    "台鐵_台北"         : { name : "台北"           , latitude : 25.04847      , longtitude : 121.51473     , title : "台北站   (Taihoku            →   Taipei)"        },
-    "台鐵_北門"         : { name : "北門"           , latitude : 25.049444     , longtitude : 121.510361    , title : "北門站   (Hokumon)"                              },
-    "台鐵_大稻埕"       : { name : "大稻埕"         , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                             },
-    "台鐵_台北OLD"       : { name : "台北(第一代)"  , latitude : 25.05177      , longtitude : 121.5094      , title : "台北站   (Taihoku            →   Taipei)"                             },
+    "台鐵_淡水"         : { name : "淡水"           , latitude : 25.168053     , longtitude : 121.445194    , title : "淡水站   (Tansui             →   Tanshui)"     , info : stationInfoText.淡水 },
+    "台鐵_竹圍"         : { name : "竹圍"           , latitude : 25.137        , longtitude : 121.459503    , title : "竹圍站   (Chikui)"                             , info : stationInfoText.竹圍 },
+    "台鐵_關渡"         : { name : "關渡"           , latitude : 25.125833     , longtitude : 121.467222    , title : "關渡站   (Kantō(江頭)        →   Kuantu)"      , info : stationInfoText.關渡 },
+    "台鐵_忠義"         : { name : "忠義"           , latitude : 25.131111     , longtitude : 121.473333    , title : "忠義站   (Chungyi)"                            , info : stationInfoText.忠義 },
+    "台鐵_北投"         : { name : "北投"           , latitude : 25.131944     , longtitude : 121.498611    , title : "北投站   (Hokuto             →   Peitou)"      , info : stationInfoText.北投 },
+    "台鐵_王家廟"       : { name : "王家廟"         , latitude : 25.1219322    , longtitude : 121.5021768   , title : "王家廟站 (Wangchia Miao)"                      , info : stationInfoText.王家廟 },
+    "台鐵_石牌"         : { name : "石牌"           , latitude : 25.114519     , longtitude : 121.515644    , title : "石牌站   (Kirigan(唭里岸)    →   Shihpai)"     , info : stationInfoText.石牌 },
+    "台鐵_士林"         : { name : "士林"           , latitude : 25.093453     , longtitude : 121.526211    , title : "士林站   (Shirin             →   Shihlin)"     , info : stationInfoText.士林 },
+    "台鐵_劍潭"         : { name : "劍潭"           , latitude : 25.084389     , longtitude : 121.525       , title : "劍潭站   (Miyanoshita(宮ノ下)→   Chientan)"    , info : stationInfoText.宮之下 },
+    "台鐵_圓山"         : { name : "圓山"           , latitude : 25.07146      , longtitude : 121.520172    , title : "圓山站   (Maruyama           →   Yuanshan)"    , info : stationInfoText.圓山 },
+    "台鐵_雙連"         : { name : "雙連"           , latitude : 25.05931      , longtitude : 121.52073     , title : "雙連站   (Soren              →   Shuanglien)"  , info : stationInfoText.雙連 },
+    "台鐵_長安"         : { name : "長安"           , latitude : 25.05089      , longtitude : 121.52006836  , title : "長安站   (Taishōgai(大正街)  →   Chang-an)"    , info : stationInfoText.大正街 },
+    "台鐵_台北"         : { name : "台北"           , latitude : 25.04847      , longtitude : 121.51473     , title : "台北站   (Taihoku            →   Taipei)"      , info : stationInfoText.台北車 },
+    "台鐵_北門"         : { name : "北門"           , latitude : 25.049444     , longtitude : 121.510361    , title : "北門站   (Hokumon)"                            , info : stationInfoText.北門 },
+    "台鐵_大稻埕"       : { name : "大稻埕"         , latitude : 25.05177      , longtitude : 121.5094      , title : "大稻埕站 (Daitotei)"                           , info : stationInfoText.大稻埕 },
+    "台鐵_台北OLD"       : { name : "台北(第一代)"  , latitude : 25.05177      , longtitude : 121.5094      , title : "台北站   (Taihoku            →   Taipei)"      , info : stationInfoText.台北車  },
 
 }
 //TODO ：北門車站在哪？
