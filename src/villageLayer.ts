@@ -29,7 +29,7 @@ class PieViewer {
         this.height = height;
         this.radius = Math.min(width,height)/2;
         this.data = {"areaName" : "Init" , "population" : { "empty":{female:0,male:0} } }
-        this.color = d3.scaleOrdinal(d3.schemeCategory10);
+        this.color = d3.schemeCategory10;
     }
 
     addTo = (CNT : HTMLDivElement) => {
@@ -41,25 +41,8 @@ class PieViewer {
         
     }
 
-    private getInfoTextOfVill = (data : PieViewerData) => {
-        let infoText = "";
-        let villname = data.areaName;
-
-        const getListOfVilla = ()=>{
-            let rtv = ""
-            for(let key in data.population)
-            {
-                rtv += `${key} : 女 ${data.population[key].female} 人 男 ${data.population[key].male} 人 ,\n`
-            }
-            return rtv;
-        }
-        infoText = `${villname} :\n ${getListOfVilla()}`;
-
-        return infoText;
-    }
-    
-
     show = (data:PieViewerData) => {
+        let colorIndex = 0;
         this.data = data;
         const arc = d3
         .arc()
@@ -73,10 +56,6 @@ class PieViewer {
                 pieData.push({name:`${citizen}_${gender}`,value:data.population[citizen][gender]})
             }
         }
-
-        this.svg.append("svg:title").text(this.getInfoTextOfVill(data) + "\n");
-
-
         const pie = d3.pie<PieDataType>().value(d => d.value)
         this.svg
         .selectAll('path')
@@ -85,11 +64,61 @@ class PieViewer {
         .append('g')
         .append('path')
         .attr('d', arc)
-        .attr('fill', (d: any) => (d.data.name.split('_')[1] === "female") ? "pink":"lightblue" )
+        .attr('fill', (d: any) => {let rtv = this.color[colorIndex]; colorIndex = (colorIndex + 1)%(this.color.length); return rtv; })
 
         this.svg.append("text").text(data.areaName).style("text-anchor", "middle")
     }
 }
+
+class MarkViewer {
+
+    private width : number;
+    private height : number;
+    private radius : number;
+
+    private container : HTMLDivElement;
+
+    private color;
+    constructor(width:number,height:number){
+        this.width = width;
+        this.height = height;
+        this.radius = Math.min(width,height)/2;
+        this.color = d3.schemeCategory10;
+        this.container = document.createElement("div");
+    }
+
+    addTo = (CNT : HTMLDivElement) => {
+        this.container = CNT;
+    }
+
+    show = (data:PieViewerData) => {
+        let colorIndex = 0;
+        let cnt = document.createElement("div");
+        cnt.classList.add("color_viewer_container")
+        for(let citizen in data.population)
+        {
+            for(let gender in data.population[citizen]) {
+                const getColor = () => {let rtv = this.color[colorIndex]; colorIndex = (colorIndex + 1)%(this.color.length); return rtv; }
+                let div = document.createElement("div");
+                div.classList.add("color_viewer_item");
+                let color_view = document.createElement("div");
+                color_view.style.backgroundColor = getColor();
+                color_view.style.height = "15px";
+                color_view.style.width = "15px";
+                color_view.style.border = "2px solid black";
+                div.appendChild(color_view);
+                let lbl = document.createElement("label");
+                lbl.innerText = `${citizen} 且 ${gender}`;
+                div.appendChild(lbl);
+                cnt.appendChild(div);
+            }
+        }
+
+        this.container.appendChild(cnt);
+        
+    }
+}
+
 
 export class VillageLayer extends L.Layer {
     constructor(geojsonData:GeoJSON.GeoJsonObject,populationData:PopulationDataType,color:string = "red",highlighColor: string = "orange",showPop: boolean = true,showOnMap: boolean = false)
@@ -107,6 +136,7 @@ export class VillageLayer extends L.Layer {
         }
         this.populationBox = Message.messagebox({timeout: 0 });
         this.viewer = new PieViewer(200,250)
+        this.colorviewer = new MarkViewer(200,250);
         this.showPop = showPop;
         this.showOnMap = showOnMap;
         this.viewerMode = "total"
@@ -133,6 +163,7 @@ export class VillageLayer extends L.Layer {
     private showOnMap: boolean;
 
     private viewer : PieViewer;
+    private colorviewer : MarkViewer;
 
     private viewerMode : string;
 
@@ -208,19 +239,50 @@ export class VillageLayer extends L.Layer {
 
         
 
-        if(this.showPop) {
+        if(this.showOnMap || this.showPop) {
             this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
             // this.populationBox.show("")
-            this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
+            
 
             const onChange = (value:string) => {
                 this.viewerMode = value;
-                let data = this.getViewerDataOfVill(e.target.feature)
-                this.viewer.show(this.viewerMode === "total" ? this.getTotalViewerDataOfVill(data) : data)
+                if(this.showPop){
+                    let data = this.getViewerDataOfVill(e.target.feature)
+                    this.viewer.show(this.viewerMode === "total" ? this.getTotalViewerDataOfVill(data) : data)
+                }
+                if(this.showOnMap)
+                {
+                    this.geojsonLayer.remove()
+                    // TODO : This is a hack to reload the geojson layer, needed to find a better way to update states
+                    let style = {
+                        "color" : this.color,
+                        "weight" : 5,
+                        "opacity": 0.65
+                    }
+                    this.geojsonLayer = L.geoJSON(this.geojsonData,{
+                        style : style,
+                        onEachFeature : this.onEachFeature,
+                        filter: (feature: GeoJSON.Feature) => {
+            
+                            if( feature.properties )
+                                if(feature.properties["VILLNAME"] in this.populationData)
+                                    return true;
+                            return false;
+                        }
+                    })
+                    this.geojsonLayer.addTo(this._map);
+                }
             }
-            onChange(this.viewerMode)
-            ;(this.populationBox.getContainer() as HTMLDivElement).appendChild(this.getShowTypeSelector(onChange,this.viewerMode)) 
+            if(this.showPop){
+                this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
+                onChange(this.viewerMode);
+            }
+            (this.populationBox.getContainer() as HTMLDivElement).appendChild(this.getShowTypeSelector(onChange,this.viewerMode)) 
+
+            this.colorviewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
+            this.colorviewer.show(this.getViewerDataOfVill(e.target.feature))
         }
+
     }
 
     private resetHighlightFeature = (e:L.LeafletEvent) => {
@@ -237,7 +299,10 @@ export class VillageLayer extends L.Layer {
                     let rtv = ""
                     for(let key in this.populationData[name].population)
                     {
-                        rtv += `${key} : 女 ${this.populationData[name].population[key].female} 人 男 ${this.populationData[name].population[key].male} 人 ,</br>`
+                        rtv += `${key} : `
+                        for(let gender in this.populationData[name].population[key])
+                            rtv += `${gender} ${this.populationData[name].population[key][gender]} 人, `
+                        rtv += "</br>"
                     }
                     return rtv;
                 }
@@ -291,8 +356,8 @@ export class VillageLayer extends L.Layer {
                 let totalPop = 0;
                 for(let label in popData)
                 {
-                    totalPop += popData[label].female
-                    totalPop += popData[label].male
+                    for(let gender in popData[label])
+                        totalPop += popData[label][gender]
                 }
                 // console.log("TotalPop : ",Math.log10(totalPop)*10)
                 let new_viewer = new PieViewer((Math.log2(totalPop)-5)*15,totalPop + 50);
@@ -324,27 +389,11 @@ export class VillageLayer extends L.Layer {
             this.populationBox.show("");
             this.populationBox.getContainer()?.appendChild(this.getShowTypeSelector((value:string)=>{
                 this.viewerMode = value;
-                this.geojsonLayer.remove()
-                // TODO : This is a hack to reload the geojson layer, needed to find a better way to update states
-                let style = {
-                    "color" : this.color,
-                    "weight" : 5,
-                    "opacity": 0.65
-                }
-                this.geojsonLayer = L.geoJSON(this.geojsonData,{
-                    style : style,
-                    onEachFeature : this.onEachFeature,
-                    filter: (feature: GeoJSON.Feature) => {
-        
-                        if( feature.properties )
-                            if(feature.properties["VILLNAME"] in this.populationData)
-                                return true;
-                        return false;
-                    }
-                })
-                this.geojsonLayer.addTo(map);
+                
                 //====================================================================================================
             },"total"))
+            // this.colorviewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
+            // this.colorviewer.show(this.getViewerDataOfVill(this.geojsonData))
         }
         return this;
     }
@@ -389,16 +438,16 @@ export class VillageLayersSubGroup extends L.Layer {
             let totalMale = 0;
             for(let label in popData)
             {
-                totalFemale += popData[label].female
-                totalMale += popData[label].male
+                totalFemale += popData[label].女性 //is there general way ?
+                totalMale += popData[label].男性
             }
             rtv[villname] = {
                 latitude: populationData[villname].latitude,
                 longtitude:  populationData[villname].longtitude,
                 population: {
                     總人口:{
-                        female: totalFemale,
-                        male: totalMale
+                        女性: totalFemale,
+                        男性: totalMale
                     }
                 } 
             }
