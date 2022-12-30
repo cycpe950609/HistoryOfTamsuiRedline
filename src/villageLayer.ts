@@ -109,6 +109,7 @@ export class VillageLayer extends L.Layer {
         this.viewer = new PieViewer(200,250)
         this.showPop = showPop;
         this.showOnMap = showOnMap;
+        this.viewerMode = "total"
         this.geojsonLayer = L.geoJSON(this.geojsonData,{
             style : style,
             onEachFeature : this.onEachFeature,
@@ -120,7 +121,6 @@ export class VillageLayer extends L.Layer {
                 return false;
             }
         })
-        this.viewerMode = "total"
     }
 
     private geojsonData : GeoJSON.GeoJsonObject;
@@ -136,6 +136,67 @@ export class VillageLayer extends L.Layer {
 
     private viewerMode : string;
 
+    private getTotalViewerDataOfVill = (data : PieViewerData) => {
+        let mergeData : PieViewerData = {
+            areaName: data.areaName,
+            population: {}
+        };
+        for(let citizen in data.population)
+        {
+            let totalPop = 0;
+            for(let gender in data.population[citizen])
+                totalPop += data.population[citizen][gender]
+            mergeData.population[citizen] = {"total" : totalPop}
+        }
+
+        return mergeData;
+    }
+
+    private getShowTypeSelector = (onChange : (value:string)=> void,defaultValue : string) => {
+        let cnt = document.createElement("fieldset");
+        cnt.classList.add("selector-cnt")
+
+        let title = document.createElement("legend")
+        title.innerText = "檢視模式:";
+        cnt.appendChild(title);
+
+        const createSelectorItem = (value:string,innerText: string, changeFunc : (value:string)=> void,checked: boolean = false) => {
+            let selector = document.createElement("div");
+            selector.classList.add("selector");
+            let lbl = document.createElement("label")
+            lbl.setAttribute("for",value);
+            lbl.innerText = innerText;
+            selector.appendChild(lbl);
+
+            let input = document.createElement("input");
+            input.setAttribute("type","radio");
+            input.setAttribute("name","showType");
+            input.setAttribute("id",value);
+            input.setAttribute("value",value);
+            input.checked = checked;
+            input.onchange = () => changeFunc(value);
+            selector.appendChild(input);
+
+            return selector;
+        }
+
+        cnt.appendChild(createSelectorItem("total","總人數",onChange,defaultValue === "total"))
+        cnt.appendChild(createSelectorItem("gender","男女比",onChange,defaultValue === "gender"))
+
+        // cnt.innerHTML = `\
+        // <legend>檢視模式:</legend>\
+        // <div class="selector">\
+        //     <label for="total">總人數</label>\
+        //     <input type="radio" id="total" name="showType" value="total" checked>\
+        // </div>\
+        // <div class="selector">\
+        //     <label for="gender">男女比</label>\
+        //     <input type="radio" id="gender" name="showType" value="gender" ${() => onChange("gender")}>\
+        // </div>\
+        // `
+        return cnt;
+    }
+
     private highlightFeature = (e:L.LeafletEvent) => {
         let layer = e.target;
         layer.setStyle({
@@ -145,66 +206,7 @@ export class VillageLayer extends L.Layer {
         });
         layer.bringToFront()
 
-        const getShowTypeSelector = (onChange : (value:string)=> void,defaultValue : string) => {
-            let cnt = document.createElement("fieldset");
-            cnt.classList.add("selector-cnt")
-
-            let title = document.createElement("legend")
-            title.innerText = "檢視模式:";
-            cnt.appendChild(title);
-
-            const createSelectorItem = (value:string,innerText: string, changeFunc : (value:string)=> void,checked: boolean = false) => {
-                let selector = document.createElement("div");
-                selector.classList.add("selector");
-                let lbl = document.createElement("label")
-                lbl.setAttribute("for",value);
-                lbl.innerText = innerText;
-                selector.appendChild(lbl);
-
-                let input = document.createElement("input");
-                input.setAttribute("type","radio");
-                input.setAttribute("name","showType");
-                input.setAttribute("id",value);
-                input.setAttribute("value",value);
-                input.checked = checked;
-                input.onchange = () => changeFunc(value);
-                selector.appendChild(input);
-
-                return selector;
-            }
-
-            cnt.appendChild(createSelectorItem("total","總人數",onChange,defaultValue === "total"))
-            cnt.appendChild(createSelectorItem("gender","男女比",onChange,defaultValue === "gender"))
-
-            // cnt.innerHTML = `\
-            // <legend>檢視模式:</legend>\
-            // <div class="selector">\
-            //     <label for="total">總人數</label>\
-            //     <input type="radio" id="total" name="showType" value="total" checked>\
-            // </div>\
-            // <div class="selector">\
-            //     <label for="gender">男女比</label>\
-            //     <input type="radio" id="gender" name="showType" value="gender" ${() => onChange("gender")}>\
-            // </div>\
-            // `
-            return cnt;
-        }
-
-        const getTotakViewerDataOfVill = (data : PieViewerData) => {
-            let mergeData : PieViewerData = {
-                areaName: data.areaName,
-                population: {}
-            };
-            for(let citizen in data.population)
-            {
-                let totalPop = 0;
-                for(let gender in data.population[citizen])
-                    totalPop += data.population[citizen][gender]
-                mergeData.population[citizen] = {"total" : totalPop}
-            }
-
-            return mergeData;
-        }
+        
 
         if(this.showPop) {
             this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
@@ -213,16 +215,11 @@ export class VillageLayer extends L.Layer {
 
             const onChange = (value:string) => {
                 this.viewerMode = value;
-                if(value === "total"){
-                    let data = this.getViewerDataOfVill(e.target.feature)
-                    let mergeData = getTotakViewerDataOfVill(data);
-                    this.viewer.show(mergeData)
-                    return;
-                }
-                this.viewer.show(this.getViewerDataOfVill(e.target.feature))
+                let data = this.getViewerDataOfVill(e.target.feature)
+                this.viewer.show(this.viewerMode === "total" ? this.getTotalViewerDataOfVill(data) : data)
             }
             onChange(this.viewerMode)
-            ;(this.populationBox.getContainer() as HTMLDivElement).appendChild(getShowTypeSelector(onChange,this.viewerMode)) 
+            ;(this.populationBox.getContainer() as HTMLDivElement).appendChild(this.getShowTypeSelector(onChange,this.viewerMode)) 
         }
     }
 
@@ -302,7 +299,9 @@ export class VillageLayer extends L.Layer {
                 let tooltip = layer.bindTooltip(container,{className: "village-labels",permanent:true,direction:"center"});
                 // console.log("Tooltip : ",tooltip.getTooltip())
                 new_viewer.addTo(container as HTMLDivElement)
-                new_viewer.show(this.getViewerDataOfVill(feature))
+                let data = this.getViewerDataOfVill(feature);
+                // console.log("ViewerMode",this.viewerMode);
+                new_viewer.show(this.viewerMode === "total" ? this.getTotalViewerDataOfVill(data): data )
                 this.pieCNT[feature.properties["VILLNAME"]] = {
                     Tooltip: tooltip,
                     CNT : container,
@@ -319,15 +318,41 @@ export class VillageLayer extends L.Layer {
     onAdd(map: L.Map): this {
         
         this.geojsonLayer.addTo(map);
-        if(this.showPop)
+        if(this.showPop || this.showOnMap)
             this.populationBox.addTo(map);
+        if(this.showOnMap){
+            this.populationBox.show("");
+            this.populationBox.getContainer()?.appendChild(this.getShowTypeSelector((value:string)=>{
+                this.viewerMode = value;
+                this.geojsonLayer.remove()
+                // TODO : This is a hack to reload the geojson layer, needed to find a better way to update states
+                let style = {
+                    "color" : this.color,
+                    "weight" : 5,
+                    "opacity": 0.65
+                }
+                this.geojsonLayer = L.geoJSON(this.geojsonData,{
+                    style : style,
+                    onEachFeature : this.onEachFeature,
+                    filter: (feature: GeoJSON.Feature) => {
+        
+                        if( feature.properties )
+                            if(feature.properties["VILLNAME"] in this.populationData)
+                                return true;
+                        return false;
+                    }
+                })
+                this.geojsonLayer.addTo(map);
+                //====================================================================================================
+            },"total"))
+        }
         return this;
     }
 
     onRemove(map: L.Map): this {
-        if(this.showPop)
+        if(this.showPop || this.showOnMap)
             this.populationBox.close();
-        if(this.showPop)
+        if(this.showPop || this.showOnMap)
             this.populationBox.remove();
         this.geojsonLayer.remove();
         if(this.showOnMap) {
