@@ -18,3 +18,13 @@ html , body
     box-shadow: none;
     font-size: larger;
 }
+
+.selector {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.selector-cnt {
+    display: flex;
+    flex-direction: row;
+}

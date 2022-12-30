@@ -7,7 +7,7 @@ import * as d3 from "d3"
 type PieViewerData = {
     "areaName" : string,
     "population" : {
-        [name:string]:{female:number,male:number}
+        [citizenship:string]:{[gender:string]:number}
     }
 }
 
@@ -67,10 +67,11 @@ class PieViewer {
         .outerRadius(this.radius)
 
         let pieData : PieDataType[] = []
-        for(let it in data.population)
+        for(let citizen in data.population)
         {
-            pieData.push({name:`${it}_female`,value:data.population[it].female})
-            pieData.push({name:`${it}_male`,value:data.population[it].male})
+            for(let gender in data.population[citizen]) {
+                pieData.push({name:`${citizen}_${gender}`,value:data.population[citizen][gender]})
+            }
         }
 
         this.svg.append("svg:title").text(this.getInfoTextOfVill(data) + "\n");
@@ -119,6 +120,7 @@ export class VillageLayer extends L.Layer {
                 return false;
             }
         })
+        this.viewerMode = "total"
     }
 
     private geojsonData : GeoJSON.GeoJsonObject;
@@ -132,6 +134,8 @@ export class VillageLayer extends L.Layer {
 
     private viewer : PieViewer;
 
+    private viewerMode : string;
+
     private highlightFeature = (e:L.LeafletEvent) => {
         let layer = e.target;
         layer.setStyle({
@@ -141,11 +145,84 @@ export class VillageLayer extends L.Layer {
         });
         layer.bringToFront()
 
+        const getShowTypeSelector = (onChange : (value:string)=> void,defaultValue : string) => {
+            let cnt = document.createElement("fieldset");
+            cnt.classList.add("selector-cnt")
+
+            let title = document.createElement("legend")
+            title.innerText = "檢視模式:";
+            cnt.appendChild(title);
+
+            const createSelectorItem = (value:string,innerText: string, changeFunc : (value:string)=> void,checked: boolean = false) => {
+                let selector = document.createElement("div");
+                selector.classList.add("selector");
+                let lbl = document.createElement("label")
+                lbl.setAttribute("for",value);
+                lbl.innerText = innerText;
+                selector.appendChild(lbl);
+
+                let input = document.createElement("input");
+                input.setAttribute("type","radio");
+                input.setAttribute("name","showType");
+                input.setAttribute("id",value);
+                input.setAttribute("value",value);
+                input.checked = checked;
+                input.onchange = () => changeFunc(value);
+                selector.appendChild(input);
+
+                return selector;
+            }
+
+            cnt.appendChild(createSelectorItem("total","總人數",onChange,defaultValue === "total"))
+            cnt.appendChild(createSelectorItem("gender","男女比",onChange,defaultValue === "gender"))
+
+            // cnt.innerHTML = `\
+            // <legend>檢視模式:</legend>\
+            // <div class="selector">\
+            //     <label for="total">總人數</label>\
+            //     <input type="radio" id="total" name="showType" value="total" checked>\
+            // </div>\
+            // <div class="selector">\
+            //     <label for="gender">男女比</label>\
+            //     <input type="radio" id="gender" name="showType" value="gender" ${() => onChange("gender")}>\
+            // </div>\
+            // `
+            return cnt;
+        }
+
+        const getTotakViewerDataOfVill = (data : PieViewerData) => {
+            let mergeData : PieViewerData = {
+                areaName: data.areaName,
+                population: {}
+            };
+            for(let citizen in data.population)
+            {
+                let totalPop = 0;
+                for(let gender in data.population[citizen])
+                    totalPop += data.population[citizen][gender]
+                mergeData.population[citizen] = {"total" : totalPop}
+            }
+
+            return mergeData;
+        }
+
         if(this.showPop) {
             this.populationBox.show(this.getInfoTextOfVill(e.target.feature) + "</br>")
             // this.populationBox.show("")
-            this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement)
-            this.viewer.show(this.getViewerDataOfVill(e.target.feature))
+            this.viewer.addTo(this.populationBox.getContainer() as HTMLDivElement);
+
+            const onChange = (value:string) => {
+                this.viewerMode = value;
+                if(value === "total"){
+                    let data = this.getViewerDataOfVill(e.target.feature)
+                    let mergeData = getTotakViewerDataOfVill(data);
+                    this.viewer.show(mergeData)
+                    return;
+                }
+                this.viewer.show(this.getViewerDataOfVill(e.target.feature))
+            }
+            onChange(this.viewerMode)
+            ;(this.populationBox.getContainer() as HTMLDivElement).appendChild(getShowTypeSelector(onChange,this.viewerMode)) 
         }
     }
 
@@ -220,7 +297,7 @@ export class VillageLayer extends L.Layer {
                     totalPop += popData[label].female
                     totalPop += popData[label].male
                 }
-                console.log("TotalPop : ",Math.log10(totalPop)*10)
+                // console.log("TotalPop : ",Math.log10(totalPop)*10)
                 let new_viewer = new PieViewer((Math.log2(totalPop)-5)*15,totalPop + 50);
                 let tooltip = layer.bindTooltip(container,{className: "village-labels",permanent:true,direction:"center"});
                 // console.log("Tooltip : ",tooltip.getTooltip())
