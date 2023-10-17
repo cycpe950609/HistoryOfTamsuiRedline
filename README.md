@@ -1,4 +1,4 @@
-# 關於 HistoryOfTansuiRedline
+# 關於 HistoryOfTamsuiRedline
 111學年度第1學期 - 歷史研究數位人文資源的介紹與實作 (CSIE5025) 期末報告資料視覺化網頁
 
 # 網址 : https://cycpe950609.github.io/HistoryOfTamsuiRedline/
